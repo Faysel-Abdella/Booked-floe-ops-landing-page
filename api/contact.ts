@@ -379,7 +379,7 @@ export default async function handler(req: any, res: any) {
     res.status(500).json({
       success: false,
       message:
-        'An error occurred while submitting the form. Please email us directly at hello@faysela.com.',
+        'An error occurred while submitting the form. Please email us directly at contact@bookedflowops.com.',
     });
   }
 }
