@@ -1,0 +1,6 @@
+{
+  "name": "BookedFlowOps",
+  "description": "Turn missed calls & leads into booked jobs. Automated lead response, qualification, and follow-up systems for service businesses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
