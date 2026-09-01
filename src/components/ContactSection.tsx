@@ -77,9 +77,14 @@ export const ContactSection: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
-      const data: ContactApiResponse = await response.json();
+      let data: ContactApiResponse | null = null;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        console.warn('Response was not valid JSON:', jsonErr);
+      }
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         setSubmitSuccess(true);
         setSubmissionId(data.submissionId || null);
         // Reset form
@@ -96,17 +101,20 @@ export const ContactSection: React.FC = () => {
           message: '',
         });
       } else {
-        if (data.errors) {
+        if (data?.errors) {
           setErrors(data.errors);
         }
         setSubmitError(
-          data.message || 'Unable to submit your inquiry. Please verify your information and try again.'
+          data?.message ||
+            (response.status === 404
+              ? 'Contact API endpoint not found. Please ensure serverless functions are enabled or email us directly at ' + siteConfig.contactEmail
+              : 'Unable to submit your inquiry. Please check your details or email us directly at ' + siteConfig.contactEmail)
         );
       }
     } catch (err) {
       console.error('Network error during form submission:', err);
       setSubmitError(
-        'A network error occurred. Please try again or email us directly at hello@faysela.com'
+        `Unable to reach the server. You can also email us directly at ${siteConfig.contactEmail}`
       );
     } finally {
       setIsSubmitting(false);
@@ -167,10 +175,21 @@ export const ContactSection: React.FC = () => {
               {submitError && (
                 <div
                   id="contact-form-error-alert"
-                  className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-3"
+                  className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
-                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                  <span>{submitError}</span>
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{submitError}</span>
+                  </div>
+                  <a
+                    href={`mailto:${siteConfig.contactEmail}?subject=Lead%20Inquiry%20from%20${encodeURIComponent(
+                      formData.companyName || formData.firstName || 'Website Visitor'
+                    )}`}
+                    className="inline-flex items-center gap-1.5 font-semibold text-rose-800 hover:text-rose-950 underline shrink-0 text-xs sm:text-sm"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Send via Email Client</span>
+                  </a>
                 </div>
               )}
 

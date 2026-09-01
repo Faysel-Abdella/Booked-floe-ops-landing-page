@@ -150,14 +150,14 @@ app.post('/api/contact', async (req: Request, res: Response) => {
     // Attempt delivery via Resend HTTP API if key exists
     if (process.env.RESEND_API_KEY) {
       try {
-        const resendResponse = await fetch('https://api.resend.com/emails', {
+        let resendResponse = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: fromAddress,
+            from: process.env.RESEND_FROM || fromAddress,
             to: [recipientEmail],
             reply_to: workEmail,
             subject: `New Lead Inquiry from ${companyName} (${firstName} ${lastName})`,
@@ -183,6 +183,43 @@ app.post('/api/contact', async (req: Request, res: Response) => {
             `,
           }),
         });
+
+        if (resendResponse.status === 403) {
+          // Retry with default onboarding@resend.dev
+          resendResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: 'BookedFlowOps <onboarding@resend.dev>',
+              to: [recipientEmail],
+              reply_to: workEmail,
+              subject: `New Lead Inquiry from ${companyName} (${firstName} ${lastName})`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #0f172a; padding: 20px;">
+                  <h2 style="color: #0f172a; border-bottom: 2px solid #0284c7; padding-bottom: 8px;">New Lead Flow Inquiry</h2>
+                  <p><strong>Submission ID:</strong> ${submissionId}</p>
+                  <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <tr style="background: #f8fafc;"><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold; width: 40%;">Name</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${firstName} ${lastName}</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Work Email</td><td style="padding: 8px; border: 1px solid #e2e8f0;"><a href="mailto:${workEmail}">${workEmail}</a></td></tr>
+                    <tr style="background: #f8fafc;"><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Company</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${companyName}</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Phone</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${phone || 'Not provided'}</td></tr>
+                    <tr style="background: #f8fafc;"><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Website</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${website || 'Not provided'}</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Business Type</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${businessType}</td></tr>
+                    <tr style="background: #f8fafc;"><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Monthly Lead Volume</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${monthlyLeadsVolume || 'Not specified'}</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Current Missed Call Handling</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${missedCallHandling || 'Not specified'}</td></tr>
+                  </table>
+                  <div style="margin-top: 20px; padding: 15px; background: #f1f5f9; border-radius: 6px;">
+                    <h4 style="margin: 0 0 8px 0;">Message / Details:</h4>
+                    <p style="margin: 0; white-space: pre-wrap;">${message || 'No additional notes provided.'}</p>
+                  </div>
+                </div>
+              `,
+            }),
+          });
+        }
 
         if (resendResponse.ok) {
           emailDelivered = true;
