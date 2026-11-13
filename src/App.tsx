@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { RevenueCalculator } from './components/RevenueCalculator';
+import { LeadComparison } from './components/LeadComparison';
 import { ProblemSection } from './components/ProblemSection';
 import { HowItWorks } from './components/HowItWorks';
 import { CoreOffer } from './components/CoreOffer';
@@ -39,6 +41,19 @@ export default function App() {
     }
   };
 
+  const handleScrollToCalculator = () => {
+    const el = document.getElementById('revenue-calculator');
+    if (el) {
+      const navOffset = 80;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   const handleJumpToContact = () => {
     const el = document.getElementById('contact');
     if (el) {
@@ -64,27 +79,44 @@ export default function App() {
 
       {/* Main Content Sections */}
       <main className="flex-1">
+        {/* Hero Section with Live Smartphone Simulator */}
         <Hero
           onOpenBooking={handleOpenBooking}
           onScrollToHowItWorks={handleScrollToHowItWorks}
+          onScrollToCalculator={handleScrollToCalculator}
         />
 
+        {/* Upgrade 1: Interactive Lost Revenue Leak Calculator */}
+        <RevenueCalculator onOpenBooking={handleOpenBooking} />
+
+        {/* Upgrade 3: The Brutal Truth Side-by-Side Comparison */}
+        <LeadComparison onOpenBooking={handleOpenBooking} />
+
+        {/* Operational Problem Breakdown */}
         <ProblemSection />
 
+        {/* System Workflow */}
         <HowItWorks />
 
+        {/* Core Capabilities */}
         <CoreOffer />
 
+        {/* Direct Benefits & Efficiency */}
         <BenefitsSection onOpenBooking={handleOpenBooking} />
 
+        {/* System Differentiation */}
         <DifferentiationSection />
 
+        {/* 3-Step Setup Process */}
         <ProcessSection onOpenBooking={handleOpenBooking} />
 
+        {/* Strategy Call Banner */}
         <CtaBanner onOpenBooking={handleOpenBooking} />
 
+        {/* Frequently Asked Questions */}
         <FaqSection />
 
+        {/* Lead Audit & Contact Form */}
         <ContactSection />
       </main>
 

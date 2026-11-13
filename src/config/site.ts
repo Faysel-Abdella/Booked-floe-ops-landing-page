@@ -15,6 +15,8 @@ export const siteConfig = {
   bookingUrl: "BOOKING_URL_PLACEHOLDER",
 
   navigation: [
+    { name: "Revenue Calculator", href: "#revenue-calculator" },
+    { name: "The Contrast", href: "#lead-comparison" },
     { name: "How It Works", href: "#how-it-works" },
     { name: "What We Do", href: "#what-we-do" },
     { name: "FAQ", href: "#faq" },
