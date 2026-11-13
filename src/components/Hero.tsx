@@ -3,10 +3,11 @@ import { Check } from 'lucide-react';
 import { bookCall } from '../lib/booking';
 import { PhoneSimulator } from './PhoneSimulator';
 
+// The three things an owner asks before anything else.
 const FACTS = [
   'Keep your current phone number',
   'Works with the CRM and calendar you already use',
-  'No new software for your team to learn',
+  'We set it all up. Nothing for you to install or learn',
 ];
 
 export const Hero: React.FC = () => {
@@ -14,14 +15,16 @@ export const Hero: React.FC = () => {
     <section id="top" className="pt-24 pb-16 sm:pt-28 lg:pt-32 lg:pb-24 bg-white">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-10 lg:gap-y-8">
         <div className="lg:col-span-7 lg:row-start-1 lg:self-end">
-          <h1 className="text-[2.9rem] sm:text-7xl lg:text-[5.25rem] text-ink">
-            Stop losing jobs to the first contractor who answers.
+          {/* Two short lines, sized so each stays on one line from 320px up. */}
+          <h1 className="text-[clamp(2.6rem,13.5vw,5.75rem)] lg:text-[clamp(4.5rem,8.2vw,6rem)] text-ink">
+            <span className="block">Miss the call.</span>
+            <span className="block">Still book the job.</span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-body max-w-xl">
-            When you&apos;re on a roof or under a sink, the call goes to voicemail and the homeowner
-            dials the next name on Google. BookedFlowOps texts them back within seconds, asks the
-            right questions, and gets the job on your schedule.
+            You&apos;re on a roof or under a sink. The phone rings out, and the homeowner dials the
+            next contractor on Google. We text them back within seconds, ask the right questions,
+            and put the job on your calendar.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -32,6 +35,7 @@ export const Hero: React.FC = () => {
               See what missed calls cost you
             </a>
           </div>
+          <p className="mt-3 text-base text-body">Free. 20 minutes. No obligation.</p>
         </div>
 
         {/* On phones the demo comes straight after the buttons, ahead of the fact list. */}

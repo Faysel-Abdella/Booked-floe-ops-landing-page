@@ -18,8 +18,8 @@ const EMPTY_FORM: ContactFormData = {
 };
 
 const ON_THE_CALL = [
-  'Where missed calls and slow replies are costing you jobs',
-  'The questions your leads should be asked for your trade',
+  'Where calls and web leads are slipping away today',
+  'What your callers should be asked, for your trade',
   'Whether it fits the CRM and calendar you use now',
 ];
 
@@ -109,8 +109,7 @@ export const ContactSection: React.FC = () => {
         <div className="lg:col-span-5">
           <h2 className="text-5xl sm:text-6xl">How many jobs are you losing every month?</h2>
           <p className="mt-5 text-lg sm:text-xl text-white/75">
-            Book a free 20-minute call. We&apos;ll look at how your leads are handled today and where
-            they are slipping away.
+            Book a free 20-minute call and find out. You&apos;ll leave knowing:
           </p>
 
           <ul className="mt-8 space-y-3 text-lg">
@@ -123,7 +122,7 @@ export const ContactSection: React.FC = () => {
           </ul>
 
           <p className="mt-8 text-lg text-white/75">
-            No pressure. If it&apos;s not a fit for your business, we&apos;ll say so.
+            No pressure. If it&apos;s not a fit for your business, we&apos;ll tell you on the call.
           </p>
 
           {hasBookingUrl && (

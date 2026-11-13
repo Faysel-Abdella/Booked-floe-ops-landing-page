@@ -4,15 +4,15 @@ import { bookCall } from '../lib/booking';
 const STEPS = [
   {
     title: 'We learn how you work',
-    desc: 'A 20-minute call about how calls, inquiries and booking are handled in your business today.',
+    desc: 'One 20-minute call: who answers the phone, what happens after hours, how a job gets on the calendar.',
   },
   {
     title: 'We build it around you',
-    desc: 'Your questions, your service area, your calendar. You do not touch any of the setup.',
+    desc: "Your business name, your questions, your service area, your calendar. You don't touch the setup.",
   },
   {
     title: 'We launch and keep tuning',
-    desc: 'It goes live, we watch response times and bookings, and we adjust it as we learn.',
+    desc: 'It goes live. We watch reply times and bookings, and we adjust the wording and questions as we learn.',
   },
 ];
 

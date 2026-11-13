@@ -1,26 +1,27 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 
+// Ordered by what stops an owner from booking, not by what is easiest to answer.
 const FAQS = [
   {
-    q: 'What exactly does BookedFlowOps do?',
-    a: 'We build and run the system that replies to your missed calls and website inquiries, asks the qualifying questions, and gets the lead booked or handed to your team.',
+    q: 'What does the text say, and can I change it?',
+    a: 'It is written for your business during setup: your name, your questions, your tone. It reads like someone in your office sent it. If you want different wording, we change it.',
+  },
+  {
+    q: 'What about emergencies, or a customer who needs a real person?',
+    a: 'The first question is whether it is urgent. Urgent jobs are flagged and your team is alerted straight away. Any time a conversation needs a person, it is handed to your team with everything the customer has said so far.',
+  },
+  {
+    q: 'Can I see what was said to my customers?',
+    a: 'Yes. Your team gets a summary of every lead, and the lead is recorded in your CRM with its status.',
   },
   {
     q: 'Do I have to change my phone number?',
     a: 'No. You keep the number your customers already call.',
   },
   {
-    q: 'Do I need to replace my CRM?',
-    a: 'No. It is set up to work with the CRM and calendar you already use wherever possible.',
-  },
-  {
-    q: 'What happens when a customer needs a real person?',
-    a: 'The conversation is handed to your team and the right person is notified, with what the customer has said so far.',
-  },
-  {
-    q: 'Will it work with my existing website?',
-    a: 'Yes. It connects to the forms on the site you have now. You do not need a new website.',
+    q: 'Do I need a new CRM or a new website?',
+    a: 'No. It is set up to work with the CRM and calendar you already use wherever possible, and it connects to the forms on the website you have now.',
   },
   {
     q: 'Do you only work with HVAC companies?',
@@ -29,6 +30,10 @@ const FAQS = [
   {
     q: 'How quickly can it go live?',
     a: 'Most setups are live within 48 hours of the first call. If you need a deeper integration with your CRM it can take longer, and we will tell you the timeline up front.',
+  },
+  {
+    q: 'What does it cost?',
+    a: 'It depends on your call volume and what we connect to. You get a clear price on the free call.',
   },
 ];
 

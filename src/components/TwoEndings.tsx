@@ -40,8 +40,9 @@ export const TwoEndings: React.FC = () => {
         <div className="max-w-2xl">
           <h2 className="text-5xl sm:text-6xl text-ink">Same call. Two endings.</h2>
           <p className="mt-5 text-lg sm:text-xl text-body">
-            It&apos;s 6:14 PM. A homeowner&apos;s AC just quit and nobody at your shop can pick up.
-            You already paid to make that phone ring. What happens next decides who gets the job.
+            It&apos;s 6:14 PM. A homeowner&apos;s AC just quit, your crew is still out, and the
+            office has gone home. You already paid to make that phone ring. The next four minutes
+            decide who gets the job.
           </p>
         </div>
 
@@ -70,8 +71,17 @@ export const TwoEndings: React.FC = () => {
         <p className="mt-10 max-w-2xl text-lg text-ink">
           <strong className="font-semibold">Website leads get the same treatment.</strong>{' '}
           <span className="text-body">
-            A form submission gets a reply in under 10 seconds, day or night, instead of sitting in
-            an inbox until morning.
+            When researchers tested 2,241 US companies for{' '}
+            <a
+              href="https://hbr.org/2011/03/the-short-life-of-online-sales-leads"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-ink"
+            >
+              Harvard Business Review
+            </a>
+            , the average reply to a web lead took 42 hours. Yours goes out in under 10 seconds,
+            day or night.
           </span>
         </p>
       </div>

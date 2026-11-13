@@ -6,19 +6,19 @@ const PARTS = [
     id: 'offer-missed-call-recovery',
     name: 'Missed-call text-back',
     detail:
-      'Every caller you could not answer gets a text within seconds, then a real two-way conversation by SMS until they are booked or handed to you.',
+      "On a ladder, driving, closed for the night: every caller you can't answer gets a text from your business within seconds. Then it's a real back-and-forth by text until the job is booked or handed to you.",
   },
   {
     id: 'offer-speed-to-lead',
     name: 'Website lead response',
     detail:
-      'Someone fills in the form on your site and hears back in under 10 seconds, while they are still looking at your page.',
+      "Someone fills in the form on your site and hears back in under 10 seconds, while they're still on your page and before they fill in the next company's form.",
   },
   {
     id: 'offer-lead-follow-up',
     name: 'Follow-up',
     detail:
-      'Leads who go quiet are followed up automatically, and every lead has a status your office can see. Nobody has to remember to text back.',
+      'No more phone tag. Leads who go quiet get a nudge automatically, and your office can see where every lead stands. Nobody has to remember to text back.',
   },
 ];
 
@@ -38,7 +38,7 @@ export const WhatYouGet: React.FC = () => {
           <h2 className="text-5xl sm:text-6xl text-ink">One system that answers when you can&apos;t.</h2>
           <p className="mt-5 text-lg sm:text-xl text-body">
             Your crew stays on the job. The first reply, the questions and the booking happen
-            without anyone in the office chasing leads.
+            without anyone stopping work to chase a lead.
           </p>
         </div>
 
@@ -75,8 +75,8 @@ export const WhatYouGet: React.FC = () => {
           Same phone number. Same CRM. Same calendar.
         </p>
         <p className="mt-4 max-w-2xl text-lg text-body">
-          BookedFlowOps works around the tools and habits your business already has. The point is
-          fewer lost leads, not more software.
+          It isn&apos;t a call center, and it isn&apos;t another app for your crew to learn. It
+          runs behind the tools and habits your business already has.
         </p>
       </div>
     </section>
