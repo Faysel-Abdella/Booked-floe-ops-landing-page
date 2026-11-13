@@ -1,83 +1,214 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens.
+ * Navy + hi-vis yellow: the colours on the side of a service truck.
+ * Red and green are reserved for one meaning each: a missed call, a booked job.
+ */
+@theme {
+  --font-sans: "Barlow", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Barlow Condensed", "Barlow", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0b2545;
+  --color-ink-soft: #16365f;
+  --color-body: #44546a;
+  --color-primer: #eef1f4;
+  --color-line: #d3d9e0;
+  --color-hivis: #ffc400;
+  --color-hivis-deep: #e8b000;
+  --color-missed: #c8321f;
+  --color-missed-tint: #fbebe8;
+  --color-booked: #0f7b55;
+  --color-booked-tint: #e5f4ee;
+}
+
 @layer base {
   html {
-    font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans);
     color-scheme: light;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    color: var(--color-ink);
+    background: #fff;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+
+  /* Anchored sections stop below the fixed header. */
+  section[id] {
+    scroll-margin-top: 4rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  .on-dark :focus-visible {
+    outline-color: var(--color-hivis);
   }
 }
 
-/* Custom subtle scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #f8fafc;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+@layer components {
+  /* The one action on the page. Same look everywhere so it is easy to find again. */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    background: var(--color-hivis);
+    color: var(--color-ink);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--color-hivis-deep);
+    transition: background-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+  }
+  .btn-primary:hover {
+    background: #ffd033;
+  }
+  .btn-primary:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--color-hivis-deep);
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+    border: 2px solid var(--color-ink);
+    color: var(--color-ink);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .btn-secondary:hover {
+    background: var(--color-ink);
+    color: #fff;
+  }
+
+  .field {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.375rem;
+    border: 1.5px solid var(--color-line);
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 1rem;
+  }
+  .field::placeholder {
+    color: #8793a3;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgb(11 37 69 / 0.15);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-missed);
+  }
 }
 
-/* Focus styles for accessibility */
-*:focus-visible {
-  outline: 2px solid #0284c7;
-  outline-offset: 2px;
-}
-
-/* Modern Shimmer & Ambient Animations */
-@keyframes shimmerSweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-@keyframes pulseSubtle {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.04); }
-}
-
-@keyframes typingDots {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(-4px); opacity: 1; }
-}
-
-.animate-shimmer {
-  animation: shimmerSweep 2.5s infinite;
-}
-
-.animate-pulse-subtle {
-  animation: pulseSubtle 4s ease-in-out infinite;
-}
-
-.typing-dot-1 {
-  animation: typingDots 1.2s infinite ease-in-out;
-}
-.typing-dot-2 {
-  animation: typingDots 1.2s infinite ease-in-out 0.2s;
-}
-.typing-dot-3 {
-  animation: typingDots 1.2s infinite ease-in-out 0.4s;
-}
-
-/* Custom modern range slider */
-input[type="range"]::-webkit-slider-thumb {
+/* Calculator sliders */
+input[type="range"].slider {
   appearance: none;
-  width: 22px;
-  height: 22px;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 50%;
-  background: #38bdf8;
-  border: 3px solid #0f172a;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
-  cursor: grab;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background: var(--color-hivis);
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 0 0 2px var(--color-hivis);
+}
+input[type="range"].slider::-moz-range-thumb {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--color-hivis);
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 0 0 2px var(--color-hivis);
 }
 
-input[type="range"]::-webkit-slider-thumb:active {
-  cursor: grabbing;
-  transform: scale(1.2);
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.9);
+/* Phone demo: messages arriving, and the typing dots before an auto-reply */
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.message-in {
+  animation: messageIn 260ms ease-out both;
+}
+
+@keyframes typingDot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+.typing-dot {
+  animation: typingDot 1.1s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .message-in,
+  .typing-dot {
+    animation: none;
+  }
+  .btn-primary {
+    transition: none;
+  }
 }
