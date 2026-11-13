@@ -1,93 +1,57 @@
-import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React from 'react';
+import { Plus } from 'lucide-react';
+
+const FAQS = [
+  {
+    q: 'What exactly does BookedFlowOps do?',
+    a: 'We build and run the system that replies to your missed calls and website inquiries, asks the qualifying questions, and gets the lead booked or handed to your team.',
+  },
+  {
+    q: 'Do I have to change my phone number?',
+    a: 'No. You keep the number your customers already call.',
+  },
+  {
+    q: 'Do I need to replace my CRM?',
+    a: 'No. It is set up to work with the CRM and calendar you already use wherever possible.',
+  },
+  {
+    q: 'What happens when a customer needs a real person?',
+    a: 'The conversation is handed to your team and the right person is notified, with what the customer has said so far.',
+  },
+  {
+    q: 'Will it work with my existing website?',
+    a: 'Yes. It connects to the forms on the site you have now. You do not need a new website.',
+  },
+  {
+    q: 'Do you only work with HVAC companies?',
+    a: 'No. It is built for any service business that lives on inbound calls and booked jobs: HVAC, plumbing, roofing, electrical, general contracting, cleaning, landscaping and more.',
+  },
+  {
+    q: 'How quickly can it go live?',
+    a: 'Most setups are live within 48 hours of the first call. If you need a deeper integration with your CRM it can take longer, and we will tell you the timeline up front.',
+  },
+];
 
 export const FaqSection: React.FC = () => {
-  const faqs = [
-    {
-      q: 'What exactly does BookedFlowOps do?',
-      a: 'We build lead-response and follow-up systems that help businesses respond to missed calls and website inquiries quickly, qualify inbound leads, and move them toward booking.',
-    },
-    {
-      q: 'Do I need to replace my existing CRM?',
-      a: 'No. The goal is to work with your existing tools and processes whenever possible.',
-    },
-    {
-      q: 'What happens when a customer needs a human?',
-      a: 'The system can hand the conversation to your team and notify the appropriate person when human involvement is needed.',
-    },
-    {
-      q: 'Can this work with my existing website?',
-      a: 'Yes. The website lead-response system can be connected to an existing website and configured around the business’s current lead flow.',
-    },
-    {
-      q: 'Do you only work with HVAC companies?',
-      a: 'No. BookedFlowOps is designed for service businesses that rely on inbound calls, website inquiries and appointments or jobs.',
-    },
-    {
-      q: 'How quickly can this be implemented?',
-      a: 'Implementation depends on the business’s existing systems and workflow. After an initial conversation, we can outline the required setup and timeline.',
-    },
-  ];
-
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const toggleFaq = (idx: number) => {
-    setOpenIndex(openIndex === idx ? null : idx);
-  };
-
   return (
-    <section id="faq" className="py-24 bg-white border-b border-slate-200/80 relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-14">
-          <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
-            Common Questions
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-base sm:text-lg text-slate-600">
-            Clear, honest answers about how BookedFlowOps integrates into your operations.
-          </p>
-        </div>
+    <section id="faq" className="py-16 sm:py-24 bg-white">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-8">
+        <h2 className="lg:col-span-4 text-5xl sm:text-6xl text-ink">Questions owners ask</h2>
 
-        {/* Accordion List */}
-        <div className="space-y-4">
-          {faqs.map((item, index) => {
-            const isOpen = openIndex === index;
-            return (
-              <div
-                key={item.q}
-                id={`faq-accordion-item-${index + 1}`}
-                className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden transition-colors shadow-2xs"
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleFaq(index)}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-answer-${index + 1}`}
-                  className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors focus-visible:ring-2 focus-visible:ring-sky-600"
-                >
-                  <span className="text-base sm:text-lg font-bold text-slate-900">
-                    {item.q}
-                  </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-sky-600 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-
-                {isOpen && (
-                  <div
-                    id={`faq-answer-${index + 1}`}
-                    className="px-6 pb-6 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100"
-                  >
-                    {item.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div className="lg:col-span-8 border-t-2 border-ink">
+          {FAQS.map((item, index) => (
+            <details key={item.q} id={`faq-item-${index + 1}`} className="group border-b border-line" open={index === 0}>
+              <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                <span className="text-xl font-semibold text-ink">{item.q}</span>
+                <Plus
+                  className="w-6 h-6 shrink-0 text-ink transition-transform duration-150 group-open:rotate-45"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+              </summary>
+              <p className="pb-6 pr-10 text-lg text-body max-w-2xl">{item.a}</p>
+            </details>
+          ))}
         </div>
       </div>
     </section>

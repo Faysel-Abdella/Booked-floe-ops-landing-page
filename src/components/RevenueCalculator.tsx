@@ -1,10 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Sliders, DollarSign, TrendingUp, AlertTriangle, ShieldCheck, Sparkles, Check } from 'lucide-react';
-
-interface RevenueCalculatorProps {
-  onOpenBooking: () => void;
-}
+import React, { useState } from 'react';
+import { bookCall } from '../lib/booking';
 
 interface TradePreset {
   label: string;
@@ -12,306 +7,152 @@ interface TradePreset {
   ticket: number;
 }
 
+// Starting points only, so the sliders are not empty. Visitors set their own numbers.
 const PRESETS: Record<string, TradePreset> = {
-  hvac: { label: 'HVAC Heating & AC', calls: 18, ticket: 1650 },
-  plumbing: { label: 'Plumbing & Drains', calls: 22, ticket: 950 },
-  roofing: { label: 'Roofing & Exterior', calls: 12, ticket: 4800 },
-  electrical: { label: 'Electrical Contractors', calls: 16, ticket: 850 },
-  general: { label: 'General Contracting', calls: 10, ticket: 3500 },
+  hvac: { label: 'HVAC', calls: 18, ticket: 1650 },
+  plumbing: { label: 'Plumbing', calls: 22, ticket: 950 },
+  roofing: { label: 'Roofing', calls: 12, ticket: 4800 },
+  electrical: { label: 'Electrical', calls: 16, ticket: 850 },
+  general: { label: 'General contracting', calls: 10, ticket: 3500 },
 };
 
-// Smooth animated number counter hook
-function useAnimatedNumber(target: number, duration: number = 400): number {
-  const [current, setCurrent] = useState<number>(target);
+const CALLS = { min: 2, max: 80, step: 1 };
+const TICKET = { min: 200, max: 10000, step: 50 };
+const BOOK_RATE = { min: 10, max: 80, step: 5 };
 
-  useEffect(() => {
-    const start = current;
-    const diff = target - start;
-    if (diff === 0) return;
+const usd = (value: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 
-    const startTime = performance.now();
+const fill = (value: number, range: { min: number; max: number }) => {
+  const pct = ((value - range.min) / (range.max - range.min)) * 100;
+  return { background: `linear-gradient(to right, #ffc400 ${pct}%, #2c4a72 ${pct}%)` };
+};
 
-    const update = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // easeOutCubic
-      const ease = 1 - Math.pow(1 - progress, 3);
-      setCurrent(Math.round(start + diff * ease));
+export const RevenueCalculator: React.FC = () => {
+  const [trade, setTrade] = useState<string>('hvac');
+  const [missedCalls, setMissedCalls] = useState<number>(PRESETS.hvac.calls);
+  const [avgTicket, setAvgTicket] = useState<number>(PRESETS.hvac.ticket);
+  const [bookRate, setBookRate] = useState<number>(40);
 
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
-    };
-
-    const handle = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(handle);
-  }, [target, duration]);
-
-  return current;
-}
-
-export const RevenueCalculator: React.FC<RevenueCalculatorProps> = ({ onOpenBooking }) => {
-  const [selectedTrade, setSelectedTrade] = useState<string>('hvac');
-  const [missedCalls, setMissedCalls] = useState<number>(18);
-  const [avgTicket, setAvgTicket] = useState<number>(1650);
-
-  const handleSelectTrade = (tradeKey: string) => {
-    setSelectedTrade(tradeKey);
-    const preset = PRESETS[tradeKey];
-    if (preset) {
-      setMissedCalls(preset.calls);
-      setAvgTicket(preset.ticket);
-    }
+  const selectTrade = (key: string) => {
+    setTrade(key);
+    setMissedCalls(PRESETS[key].calls);
+    setAvgTicket(PRESETS[key].ticket);
   };
 
-  const competitorLossRate = 0.75;
-  const recoveryRate = 0.45;
-
-  const targetMonthlyGrossLost = Math.round(missedCalls * avgTicket * competitorLossRate);
-  const targetMonthlyRecoverable = Math.round(missedCalls * avgTicket * recoveryRate);
-  const targetAnnualRecoverable = targetMonthlyRecoverable * 12;
-
-  const animatedLost = useAnimatedNumber(targetMonthlyGrossLost);
-  const animatedRecovered = useAnimatedNumber(targetMonthlyRecoverable);
-  const animatedAnnual = useAnimatedNumber(targetAnnualRecoverable);
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
-
-  // Slider progress percentages for custom styling
-  const callsPercent = ((missedCalls - 4) / (60 - 4)) * 100;
-  const ticketPercent = ((avgTicket - 300) / (8000 - 300)) * 100;
+  const jobsLost = (missedCalls * bookRate) / 100;
+  const monthlyLost = Math.round(jobsLost * avgTicket);
+  const yearlyLost = monthlyLost * 12;
+  const oneInThree = Math.round(monthlyLost / 3);
 
   return (
-    <section id="revenue-calculator" className="py-24 md:py-32 bg-slate-950 text-white relative overflow-hidden border-b border-slate-800">
-      {/* Background Animated Gradient Blobs */}
-      <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-sky-600/15 rounded-full blur-[120px] pointer-events-none animate-pulse-subtle" />
-      <div className="absolute bottom-10 right-0 w-[500px] h-[500px] bg-emerald-600/15 rounded-full blur-[120px] pointer-events-none animate-pulse-subtle" />
-
-      {/* Subtle Dark Background Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header with Subtle Stagger Animation */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-xs font-semibold text-sky-400 shadow-inner">
-            <Sliders className="w-3.5 h-3.5 text-sky-400" />
-            <span>Interactive Financial Model</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-            How much revenue is slipping through your missed calls?
-          </h2>
-
-          <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
-            In service trades, homeowners rarely wait for voicemail. Over 80% hang up and hire the next listing. Drag the sliders to see what your business is currently leaking.
+    <section id="revenue-calculator" className="on-dark py-16 sm:py-24 bg-ink text-white">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8">
+        <div className="max-w-2xl">
+          <h2 className="text-5xl sm:text-6xl">What are missed calls costing you?</h2>
+          <p className="mt-5 text-lg sm:text-xl text-white/75">
+            Put in your own numbers. This is your math, not an industry average.
           </p>
         </div>
 
-        {/* Preset Selector Bar */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">
-            Quick Benchmarks By Trade
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800">
-            {Object.entries(PRESETS).map(([key, data]) => {
-              const isSelected = selectedTrade === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => handleSelectTrade(key)}
-                  className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                    isSelected
-                      ? 'text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                  }`}
-                >
-                  {isSelected && (
-                    <motion.div
-                      layoutId="activePreset"
-                      className="absolute inset-0 bg-sky-600 rounded-xl -z-10 shadow-sm"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                  {data.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Main Interactive Calculator Console */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          {/* Left Column: Sliders Controller */}
-          <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-9 space-y-8 backdrop-blur-md flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            {/* Ambient Corner Specular */}
-            <div className="absolute top-0 left-0 w-36 h-36 bg-gradient-to-br from-white/5 to-transparent rounded-tl-3xl pointer-events-none" />
-
-            <div className="space-y-8 relative z-10">
-              {/* Slider 1: Missed Calls */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label htmlFor="missed-calls-slider" className="text-sm font-bold text-slate-200 block">
-                      Estimated Unanswered Calls / Month
-                    </label>
-                    <span className="text-xs text-slate-400">Calls missed due to field work, lunch, or after-hours</span>
-                  </div>
-                  <div className="text-2xl font-black font-mono text-sky-400 px-3 py-1 bg-slate-800/80 rounded-xl border border-slate-700/80">
-                    {missedCalls}
-                  </div>
-                </div>
-
-                <div className="relative pt-2">
-                  <input
-                    id="missed-calls-slider"
-                    type="range"
-                    min="4"
-                    max="60"
-                    step="1"
-                    value={missedCalls}
-                    onChange={(e) => {
-                      setMissedCalls(Number(e.target.value));
-                      setSelectedTrade('custom');
-                    }}
-                    style={{
-                      background: `linear-gradient(to right, #0284c7 0%, #38bdf8 ${callsPercent}%, #334155 ${callsPercent}%, #334155 100%)`,
-                    }}
-                    className="w-full h-3 rounded-lg appearance-none cursor-pointer transition-all"
-                  />
-                </div>
-
-                <div className="flex justify-between text-[11px] text-slate-500 font-medium">
-                  <span>4 calls (Small crew)</span>
-                  <span>30 calls</span>
-                  <span>60+ calls (High volume)</span>
-                </div>
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+          {/* Inputs */}
+          <div className="lg:col-span-7 space-y-9">
+            <div>
+              <div id="trade-label" className="text-base font-semibold">
+                Start from a trade
               </div>
-
-              {/* Slider 2: Average Ticket Value */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label htmlFor="avg-ticket-slider" className="text-sm font-bold text-slate-200 block">
-                      Average Ticket / Job Value
-                    </label>
-                    <span className="text-xs text-slate-400">Mean revenue earned per completed booking</span>
-                  </div>
-                  <div className="text-2xl font-black font-mono text-emerald-400 px-3 py-1 bg-slate-800/80 rounded-xl border border-slate-700/80">
-                    {formatCurrency(avgTicket)}
-                  </div>
-                </div>
-
-                <div className="relative pt-2">
-                  <input
-                    id="avg-ticket-slider"
-                    type="range"
-                    min="300"
-                    max="8000"
-                    step="50"
-                    value={avgTicket}
-                    onChange={(e) => {
-                      setAvgTicket(Number(e.target.value));
-                      setSelectedTrade('custom');
-                    }}
-                    style={{
-                      background: `linear-gradient(to right, #059669 0%, #34d399 ${ticketPercent}%, #334155 ${ticketPercent}%, #334155 100%)`,
-                    }}
-                    className="w-full h-3 rounded-lg appearance-none cursor-pointer transition-all"
-                  />
-                </div>
-
-                <div className="flex justify-between text-[11px] text-slate-500 font-medium">
-                  <span>$300 (Standard repair)</span>
-                  <span>$3,500</span>
-                  <span>$8,000+ (Full system install)</span>
-                </div>
+              <div role="group" aria-labelledby="trade-label" className="mt-3 flex flex-wrap gap-2">
+                {Object.entries(PRESETS).map(([key, preset]) => {
+                  const active = trade === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => selectTrade(key)}
+                      className={`px-3.5 py-2 rounded-md text-base font-semibold border-2 transition-colors cursor-pointer ${
+                        active
+                          ? 'bg-white text-ink border-white'
+                          : 'border-white/30 text-white hover:border-white'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Credibility note */}
-            <div className="pt-6 border-t border-slate-800 text-xs text-slate-400 leading-relaxed flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-              <span>
-                Based on benchmark dispatch metrics: 75% of callers who encounter voicemail dial a competitor within 3 minutes. Automated instant text-back recovers an estimated 45% into confirmed bookings.
-              </span>
-            </div>
+            <Slider
+              id="missed-calls-slider"
+              label="Calls you miss in a month"
+              hint="On a job, at lunch, after hours."
+              value={missedCalls}
+              display={String(missedCalls)}
+              range={CALLS}
+              onChange={(v) => {
+                setMissedCalls(v);
+                setTrade('custom');
+              }}
+            />
+
+            <Slider
+              id="avg-ticket-slider"
+              label="Your average job"
+              hint="What a typical booked job brings in."
+              value={avgTicket}
+              display={usd(avgTicket)}
+              range={TICKET}
+              onChange={(v) => {
+                setAvgTicket(v);
+                setTrade('custom');
+              }}
+            />
+
+            <Slider
+              id="book-rate-slider"
+              label="Missed callers who would have booked"
+              hint="If you had answered, how many would have become a job?"
+              value={bookRate}
+              display={`${bookRate}%`}
+              range={BOOK_RATE}
+              onChange={setBookRate}
+            />
           </div>
 
-          {/* Right Column: Real-Time Dynamic Financial Readout */}
-          <div className="lg:col-span-5 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            {/* Subtle glow border ring */}
-            <div className="absolute inset-0 border border-sky-500/20 rounded-3xl pointer-events-none" />
+          {/* Result */}
+          <div className="lg:col-span-5">
+            <div className="rounded-lg bg-ink-soft p-6 sm:p-8" aria-live="polite">
+              <div className="text-base font-semibold text-white/75">Walking away each month</div>
+              <div className="mt-1 font-display font-bold text-hivis leading-none text-7xl sm:text-8xl tabular-nums">
+                {usd(monthlyLost)}
+              </div>
 
-            <div className="space-y-6 relative z-10">
-              {/* Leaking Revenue Card */}
-              <motion.div
-                layout
-                className="p-5 rounded-2xl bg-rose-950/30 border border-rose-900/60 space-y-1.5 transition-colors"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-rose-300 uppercase tracking-wider">
-                  <span>Monthly Revenue Lost</span>
-                  <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <dl className="mt-6 divide-y divide-white/15 border-y border-white/15 text-lg">
+                <div className="flex items-baseline justify-between gap-4 py-3">
+                  <dt className="text-white/75">Jobs lost a month</dt>
+                  <dd className="font-display text-2xl font-semibold tabular-nums">
+                    about {Math.max(1, Math.round(jobsLost))}
+                  </dd>
                 </div>
-                <div className="text-3xl sm:text-4xl font-black font-mono text-rose-400 tracking-tight">
-                  {formatCurrency(animatedLost)}
-                  <span className="text-xs text-rose-300/80 font-normal ml-1.5">/ mo</span>
+                <div className="flex items-baseline justify-between gap-4 py-3">
+                  <dt className="text-white/75">Over a year</dt>
+                  <dd className="font-display text-2xl font-semibold tabular-nums">{usd(yearlyLost)}</dd>
                 </div>
-                <p className="text-[11px] text-rose-300/70 pt-1 leading-snug">
-                  High-intent homeowners who found and hired your competitor instead.
-                </p>
-              </motion.div>
+              </dl>
 
-              {/* Recoverable Revenue Card */}
-              <motion.div
-                layout
-                className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-700/80 space-y-2 relative overflow-hidden shadow-lg shadow-emerald-950/30"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-emerald-300 uppercase tracking-wider">
-                  <span>Recoverable with BookedFlowOps</span>
-                  <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-700/50">
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span>+45% Capture</span>
-                  </div>
-                </div>
+              <p className="mt-6 text-lg">
+                Win back just 1 in 3 of those jobs and that&apos;s{' '}
+                <strong className="font-bold text-hivis">{usd(oneInThree)} a month</strong>.
+              </p>
 
-                <div className="text-3xl sm:text-4xl font-black font-mono text-emerald-400 tracking-tight">
-                  +{formatCurrency(animatedRecovered)}
-                  <span className="text-xs text-emerald-300/80 font-normal ml-1.5">/ mo</span>
-                </div>
-
-                <div className="pt-2 border-t border-emerald-800/60 flex items-center justify-between text-xs text-emerald-200">
-                  <span className="text-slate-400">Annual Recovered Cash:</span>
-                  <span className="font-black font-mono text-emerald-300 text-sm">
-                    +{formatCurrency(animatedAnnual)} / yr
-                  </span>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Direct High-Urgency Booking CTA */}
-            <div className="pt-6 space-y-3 relative z-10">
-              <button
-                type="button"
-                onClick={onOpenBooking}
-                className="w-full relative overflow-hidden inline-flex items-center justify-center gap-2.5 px-6 py-4 text-base font-bold text-white bg-sky-600 hover:bg-sky-500 active:bg-sky-700 rounded-2xl transition-all duration-150 shadow-lg shadow-sky-600/30 group cursor-pointer"
-              >
-                {/* Subtle Button Shimmer Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                <span className="relative z-10">Recover Your Next Missed Job</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
+              <button type="button" onClick={bookCall} className="btn-primary w-full mt-6">
+                Book a free call
               </button>
-
-              <div className="flex items-center justify-center gap-2 text-center text-[11px] text-slate-400">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Zero change to your current phone lines &bull; Ready in 48 hours</span>
-              </div>
+              <p className="mt-4 text-sm text-white/60">
+                An estimate from the numbers you entered, not a guarantee.
+              </p>
             </div>
           </div>
         </div>
@@ -319,3 +160,38 @@ export const RevenueCalculator: React.FC<RevenueCalculatorProps> = ({ onOpenBook
     </section>
   );
 };
+
+interface SliderProps {
+  id: string;
+  label: string;
+  hint: string;
+  value: number;
+  display: string;
+  range: { min: number; max: number; step: number };
+  onChange: (value: number) => void;
+}
+
+const Slider: React.FC<SliderProps> = ({ id, label, hint, value, display, range, onChange }) => (
+  <div>
+    <div className="flex items-end justify-between gap-4">
+      <label htmlFor={id} className="block">
+        <span className="block text-lg font-semibold">{label}</span>
+        <span className="block text-base text-white/65">{hint}</span>
+      </label>
+      <output htmlFor={id} className="font-display text-4xl font-bold leading-none tabular-nums">
+        {display}
+      </output>
+    </div>
+    <input
+      id={id}
+      type="range"
+      min={range.min}
+      max={range.max}
+      step={range.step}
+      value={value}
+      onChange={(e) => onChange(Number(e.target.value))}
+      style={fill(value, range)}
+      className="slider mt-4"
+    />
+  </div>
+);
